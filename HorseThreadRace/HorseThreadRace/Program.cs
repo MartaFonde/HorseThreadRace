@@ -14,12 +14,12 @@ namespace HorseThreadRace
         {
             Horse h = (Horse)obj;
             Random n = new Random();
-            
+                        
             while (running)
             {
                 lock (l)
                 {
-                    if (running)
+                    if(running)
                     {
                         Console.SetCursorPosition(h.Posicion, h.Row);
                         Console.Write(" ");
@@ -28,7 +28,6 @@ namespace HorseThreadRace
                         if (h.Posicion < posFin)
                         {
                             Console.Write(h.Dorsal);
-                            Thread.Sleep(n.Next(200, 400));
                         }
                         else
                         {
@@ -39,6 +38,7 @@ namespace HorseThreadRace
                         }
                     }                    
                 }
+                Thread.Sleep(n.Next(100, 400));
             }
         }
 
@@ -97,28 +97,30 @@ namespace HorseThreadRace
         {
             string resp = "";
             int n = 5;
+            Horse[] horses = new Horse[n];
+            Thread[] hippodrome = new Thread[n];
             do
-            {                                
-                bool error = true;            
+            {
+                running = false;
+                bool error = true;
                 int ap = bet(n);
                 Console.Clear();
                 marks(n, ap);
-
-                Horse[] horses = new Horse[n];
+                
                 for (int i = 0; i < n; i++)
                 {
                     horses[i] = new Horse(i, i);
                     Console.SetCursorPosition(0, i);
                     Console.Write(horses[i].Dorsal);
-                }
-
-                Thread[] hippodrome = new Thread[n];
-                for (int i = 0; i < n; i++)
-                {
                     hippodrome[i] = new Thread(race);
-                    hippodrome[i].Start(horses[i]);
                 }
-
+                                                        
+                for (int i = 0; i < n; i++)
+                {                    
+                    hippodrome[i].Start(horses[i]);
+                    running = true;
+                }
+                
                 lock (l)
                 {
                     while (running)
@@ -146,7 +148,6 @@ namespace HorseThreadRace
                     if (resp.Equals("Y"))
                     {
                         Console.Clear();
-                        running = true;
                     }else if (resp.Equals("N"))
                     {
                         Console.WriteLine("--- GAME OVER ---");
